@@ -21,14 +21,25 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+- task: SonarCloudPrepare@3
+  inputs:
+    SonarQube: 'SonarQubeCloud'
+    organization: 'hhuni'
+    scannerMode: 'dotnet'
+    projectKey: 'hhuni'
+    projectName: 'az400'
+
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
     msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
+    
+- task: SonarCloudAnalyze@3
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    jdkversion: 'JAVA_HOME_17_X64'
+ 
+- task: SonarCloudPublish@3
+  inputs:
+    pollingTimeoutSec: '300'
